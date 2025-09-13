@@ -23,6 +23,7 @@ func ReadNotesFromFile() ([]Note, error) {
 		file, err := os.Create(filePath)
 		if err != nil {
 			fmt.Printf("ошибка при сoздании файла: %s\n", err)
+			return nil, err
 		}
 		defer file.Close()
 		os.WriteFile(filePath, []byte("[]"), 0644)
@@ -31,12 +32,14 @@ func ReadNotesFromFile() ([]Note, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Printf("ошбка при открытии файла(read): %s", err)
+		return nil, err
 	}
 	defer file.Close()
 	notes := []Note{}
 	err = json.NewDecoder(file).Decode(&notes)
 	if err != nil {
 		fmt.Printf("ошибка при чтении из json файла: %s", err)
+		return nil, err
 	}
 	return notes, nil
 }
@@ -45,12 +48,14 @@ func WriteNotesToFile(notes []Note) error {
 	filePath := getNotesFilePath()
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		fmt.Printf("ошбка при открытии файла(write): %s", err)
+		fmt.Printf("ошибка при открытии файла(write): %s", err)
+		return err
 	}
 	defer file.Close()
 	err = json.NewEncoder(file).Encode(notes)
 	if err != nil {
 		fmt.Printf("ошибка при записи в файл: %s", err)
+		return err
 	}
 	return nil
 }

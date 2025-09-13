@@ -9,16 +9,16 @@ import (
 )
 
 type Note struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	CreatedAt   string `json:"createdAt"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 func NewNote(title string, description string) *Note {
 	return &Note{
 		Title:       title,
 		Description: description,
-		CreatedAt:   time.Now().Format("02.01.2006"),
+		CreatedAt:   time.Now(),
 	}
 }
 
@@ -97,6 +97,7 @@ func ListNotes() error {
 	notes, err := ReadNotesFromFile()
 	if err != nil {
 		fmt.Printf("Ошибка при чтении из json файла %s", err)
+		return err
 	}
 	var command int
 	for {
@@ -106,11 +107,12 @@ func ListNotes() error {
 		_, err := fmt.Scan(&command)
 		if err != nil || command > len(notes) {
 			fmt.Println("\033[31mКоманда не найдена\033[0m")
+			return errors.New("команда не найдена")
 		}
 		if command == 0 {
 			break
 		}
-		fmt.Printf("%d - %s - %s\n%-100s\n", command, notes[command-1].Title, notes[command-1].CreatedAt, notes[command-1].Description)
+		fmt.Printf("%d - %s - %s\n%-100s\n", command, notes[command-1].Title, notes[command-1].CreatedAt.Format("01.02.2006"), notes[command-1].Description)
 	}
 	return nil
 }
@@ -159,11 +161,11 @@ func UpdateNote() error {
 		scan.Scan()
 		date := scan.Text()
 		if date != "" {
-			_, err := time.Parse("01.02.2006", date)
+			ParseDate, err := time.Parse("01.02.2006", date)
 			if err != nil {
 				fmt.Println("неверный формат даты!")
 			} else {
-				notes[command-1].CreatedAt = date
+				notes[command-1].CreatedAt = ParseDate
 				fmt.Println("дата изменена")
 			}
 		} else {
