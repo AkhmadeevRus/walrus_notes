@@ -1,6 +1,10 @@
 package app
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+	"unicode/utf8"
+)
 
 type menuFunction struct {
 	Title    string
@@ -9,9 +13,22 @@ type menuFunction struct {
 
 func generateMenu(commands map[string]menuFunction) string {
 	menu := "Меню:\n"
-	for k, v := range commands {
-		menu += fmt.Sprintf("%s - %s\n", k, v.Title)
+	var idx string
+	for i := 0; i < len(commands); i++ {
+		idx = strconv.Itoa(i)
+		menu += fmt.Sprintf("%s - %s\n", idx, commands[idx].Title)
 	}
 	menu += "Введите номер команды: "
 	return menu
+}
+
+func generateListMenu(notes []Note) {
+	for i, note := range notes {
+		if utf8.RuneCountInString(note.Title) > 19 {
+			titleRune := []rune(note.Title)
+			fmt.Printf("%d - %-20s - %s\n", i+1, string(titleRune[:17])+"...", note.CreatedAt)
+		} else {
+			fmt.Printf("%d - %-20s - %s\n", i+1, note.Title, note.CreatedAt)
+		}
+	}
 }
